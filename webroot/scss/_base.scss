@@ -1,0 +1,45 @@
+@use "variables" as *;
+
+body {
+    margin: 0;
+    font-family: $font-base;
+    background: $color-surface-muted;
+    color: $color-text;
+}
+
+a {
+    color: $color-link;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid $color-border;
+    border-radius: $radius-small;
+    box-sizing: border-box;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid $color-border-light;
+    text-align: left;
+}

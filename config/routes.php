@@ -38,6 +38,7 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/connexion', ['controller' => 'Users', 'action' => 'login']);
         $builder->connect('/deconnexion', ['controller' => 'Users', 'action' => 'logout']);
         $builder->connect('/profil', ['controller' => 'Users', 'action' => 'profile']);
+        $builder->connect('/classement', ['controller' => 'Users', 'action' => 'leaderboard']);
         $builder->connect('/jeux', ['controller' => 'Games', 'action' => 'index']);
         $builder->fallbacks();
     });

@@ -1,0 +1,215 @@
+@use "variables" as *;
+
+.wrapper {
+    width: min(1100px, calc(100% - 32px));
+    margin: 0 auto;
+}
+
+.site-header {
+    background: linear-gradient(135deg, $color-primary-dark, $color-primary);
+    color: $color-surface;
+    padding: 24px 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+
+    h1 {
+        margin: 0 0 8px;
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+.main-nav {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    a {
+        color: $color-surface;
+        font-weight: 600;
+    }
+}
+
+.page-content {
+    padding: 32px 0 48px;
+}
+
+.hero-home {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
+    gap: 24px;
+    background:
+        radial-gradient(circle at top right, rgba(217, 119, 6, 0.18), transparent 34%),
+        linear-gradient(145deg, #ffffff, #eef7fb);
+    box-shadow: $shadow-hero;
+}
+
+.hero-copy {
+    max-width: 640px;
+
+    h2 {
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1.05;
+        margin: 0 0 16px;
+    }
+}
+
+.hero-lead {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: $color-ink-soft;
+    margin-bottom: 0;
+}
+
+.hero-side {
+    display: flex;
+    align-items: stretch;
+}
+
+.hero-panel {
+    width: 100%;
+    border-radius: 24px;
+    background: linear-gradient(160deg, $color-primary-dark, #0b4862);
+    color: $color-surface;
+    padding: 24px;
+}
+
+.hero-panel-label {
+    margin: 0 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+
+    article {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 14px 12px;
+    }
+
+    strong,
+    span {
+        display: block;
+    }
+
+    strong {
+        font-size: 1.7rem;
+        margin-bottom: 6px;
+    }
+
+    span {
+        font-size: 0.82rem;
+        line-height: 1.4;
+    }
+}
+
+.hero-mini-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    margin: 8px 0 18px;
+
+    h2 {
+        margin: 4px 0 0;
+    }
+
+    p {
+        max-width: 420px;
+        margin: 0;
+        color: $color-ink-soft;
+    }
+}
+
+.hero,
+.panel,
+.card {
+    background: $color-surface;
+    border-radius: $radius-large;
+    box-shadow: $shadow-panel;
+}
+
+.hero,
+.panel {
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.card {
+    padding: 20px;
+}
+
+.game-showcase {
+    margin-bottom: 32px;
+}
+
+.about-grid,
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.narrow {
+    max-width: 520px;
+}
+
+@media (max-width: 700px) {
+    .hero-home,
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hero-home {
+        grid-template-columns: 1fr;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-mini-board {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}

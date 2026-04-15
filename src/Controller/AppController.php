@@ -18,7 +18,6 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Event\EventInterface;
-use Cake\Http\Exception\ForbiddenException;
 
 /**
  * Application Controller
@@ -30,15 +29,6 @@ use Cake\Http\Exception\ForbiddenException;
  */
 class AppController extends Controller
 {
-    /**
-     * Initialization hook method.
-     *
-     * Use this method to add common initialization code like loading components.
-     *
-     * e.g. `$this->loadComponent('FormProtection');`
-     *
-     * @return void
-     */
     public function initialize(): void
     {
         parent::initialize();
@@ -75,7 +65,7 @@ class AppController extends Controller
         return $userId;
     }
 
-    protected function ensurePlayerInGame(object $game): void
+    protected function ensurePlayerInGame(object $game): bool
     {
         $currentUserId = $this->getCurrentUserId();
         $playerIds = [];
@@ -84,8 +74,6 @@ class AppController extends Controller
             $playerIds[] = (int)$playerLink->user_id;
         }
 
-        if ($currentUserId === null || !in_array($currentUserId, $playerIds, true)) {
-            throw new ForbiddenException('Tu ne fais pas partie de cette partie.');
-        }
+        return $currentUserId !== null && in_array($currentUserId, $playerIds, true);
     }
 }

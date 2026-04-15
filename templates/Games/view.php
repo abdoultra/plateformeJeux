@@ -76,6 +76,9 @@
 <?php if ($game->board_game->name === 'Filler' && $fillerGrid !== null && $fillerState !== null): ?>
     <section class="panel">
         <h2>Partie de Filler</h2>
+        <p>Deux joueurs partent chacun d'un coin de la grille.</p>
+        <p>A chaque tour, le joueur actif choisit une couleur autorisee pour agrandir son territoire.</p>
+        <p>La partie se termine quand toute la grille est controlee ou quand aucun joueur ne peut encore s'agrandir.</p>
         <?php
         $players = is_array($game->users_ingames) ? $game->users_ingames : $game->users_ingames->toList();
         usort($players, fn ($left, $right) => $left->id <=> $right->id);
@@ -150,6 +153,9 @@
 <?php if ($game->board_game->name === 'Labyrinthe' && $game->labyrinth_setting !== null && $labyrinthState !== null): ?>
     <section class="panel">
         <h2>Partie de Labyrinthe</h2>
+        <p>Deux joueurs se deplacent dans le labyrinthe pour atteindre un tresor cache.</p>
+        <p>Chaque deplacement consomme 1 PA. Quand les PA tombent a zero, il faut attendre la recharge.</p>
+        <p>Le premier joueur qui atteint le tresor gagne la partie.</p>
         <?php
         $players = is_array($game->users_ingames) ? $game->users_ingames : $game->users_ingames->toList();
         usort($players, fn ($left, $right) => $left->id <=> $right->id);

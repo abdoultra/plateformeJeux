@@ -1,0 +1,11 @@
+{
+  "name": "plateforme-jeux",
+  "private": true,
+  "scripts": {
+    "sass:build": "sass webroot/scss/app.scss webroot/css/app.css --no-source-map",
+    "sass:watch": "sass --watch webroot/scss/app.scss:webroot/css/app.css"
+  },
+  "devDependencies": {
+    "sass": "^1.93.2"
+  }
+}

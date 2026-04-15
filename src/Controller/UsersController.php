@@ -84,4 +84,70 @@ class UsersController extends AppController
 
         $this->set(compact('user'));
     }
+
+    public function leaderboard()
+    {
+        $usersTable = $this->fetchTable('Users');
+        $users = $usersTable->find()
+            ->contain([
+                'UsersIngames.Games.BoardGames',
+            ])
+            ->all();
+
+        $leaderboard = [];
+
+        foreach ($users as $user) {
+            $stats = [
+                'user' => $user,
+                'games_played' => 0,
+                'finished_games' => 0,
+                'wins' => 0,
+                'total_score' => 0,
+                'favorite_game' => 'Aucun',
+            ];
+
+            $gameCounts = [];
+
+            foreach ($user->users_ingames as $link) {
+                $stats['games_played']++;
+                $stats['total_score'] += (int)$link->score_final;
+
+                if (($link->game->status ?? null) === 'finished') {
+                    $stats['finished_games']++;
+                }
+
+                if ((int)$link->score_final > 0) {
+                    $stats['wins']++;
+                }
+
+                $gameName = $link->game->board_game->name ?? 'Inconnu';
+                $gameCounts[$gameName] = ($gameCounts[$gameName] ?? 0) + 1;
+            }
+
+            if ($gameCounts !== []) {
+                arsort($gameCounts);
+                $stats['favorite_game'] = (string)array_key_first($gameCounts);
+            }
+
+            $leaderboard[] = $stats;
+        }
+
+        usort($leaderboard, function (array $left, array $right): int {
+            if ($left['wins'] !== $right['wins']) {
+                return $right['wins'] <=> $left['wins'];
+            }
+
+            if ($left['total_score'] !== $right['total_score']) {
+                return $right['total_score'] <=> $left['total_score'];
+            }
+
+            if ($left['finished_games'] !== $right['finished_games']) {
+                return $right['finished_games'] <=> $left['finished_games'];
+            }
+
+            return strcmp((string)$left['user']->username, (string)$right['user']->username);
+        });
+
+        $this->set(compact('leaderboard'));
+    }
 }

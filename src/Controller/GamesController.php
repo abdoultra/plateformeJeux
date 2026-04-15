@@ -57,7 +57,7 @@ class GamesController extends AppController
 
         if ($resolvedBoardGameId === null) {
             $url = trim((string)$this->request->getRequestTarget(), '/');
-            if (preg_match('#(?:games/add|jeux/creer)/(\d+)#', $url, $matches) === 1) {
+            if (preg_match('#(?:games/add|jeux/creer)/(\\d+)#', $url, $matches) === 1) {
                 $resolvedBoardGameId = (int)$matches[1];
             }
         }
@@ -167,7 +167,11 @@ class GamesController extends AppController
             'LabyrinthSettings',
         ]);
 
-        $this->ensurePlayerInGame($game);
+        if (!$this->ensurePlayerInGame($game)) {
+            $this->Flash->error('Tu ne fais pas partie de cette partie.');
+
+            return $this->redirect(['controller' => 'Games', 'action' => 'index']);
+        }
 
         if ($this->request->is('post') && $game->board_game->name === 'Mastermind') {
             return $this->playMastermind($game);
