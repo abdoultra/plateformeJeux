@@ -65,14 +65,53 @@ td {
   margin: 0;
 }
 
+.header-brand {
+  max-width: 420px;
+}
+
+.header-nav-shell {
+  position: relative;
+}
+
+.nav-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .main-nav {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  align-items: center;
 }
 .main-nav a {
   color: #fff;
   font-weight: 600;
+  padding: 8px 0;
+}
+
+.nav-toggle-button {
+  display: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-direction: column;
+  box-shadow: 0 12px 30px rgba(3, 12, 24, 0.18);
+}
+.nav-toggle-button span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 999px;
+  background: #fff;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .page-content {
@@ -261,6 +300,46 @@ td {
   }
   .game-header-top {
     flex-direction: column;
+  }
+  .header-content,
+  .header-nav-shell {
+    width: 100%;
+  }
+  .nav-toggle-button {
+    display: inline-flex;
+    margin-left: auto;
+  }
+  .main-nav {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+    left: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 20px;
+    background: rgba(8, 31, 48, 0.96);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 20px 40px rgba(3, 12, 24, 0.28);
+  }
+  .main-nav a {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+  }
+  .nav-toggle:checked + .nav-toggle-button + .main-nav {
+    display: flex;
+  }
+  .nav-toggle:checked + .nav-toggle-button span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-toggle:checked + .nav-toggle-button span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle:checked + .nav-toggle-button span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
   }
   .hero-stats {
     grid-template-columns: 1fr;
