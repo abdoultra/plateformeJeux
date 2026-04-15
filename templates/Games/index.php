@@ -6,16 +6,20 @@
  */
 ?>
 <section class="panel">
-    <h2>Créer une partie</h2>
+    <h2>Creer une partie</h2>
     <?php if (!$currentUser): ?>
-        <p>Connecte-toi pour pouvoir créer ou rejoindre une partie.</p>
+        <p>Connecte-toi pour pouvoir creer ou rejoindre une partie.</p>
     <?php else: ?>
         <div class="card-grid">
             <?php foreach ($boardGames as $boardGame): ?>
                 <article class="card">
                     <h3><?= h($boardGame->name) ?></h3>
                     <p>Type : <?= h($boardGame->type) ?></p>
-                    <?= $this->Html->link('Créer une partie', ['action' => 'add', $boardGame->id], ['class' => 'button']) ?>
+                    <?= $this->Html->link('Creer une partie', [
+                        'controller' => 'Games',
+                        'action' => 'add',
+                        '?' => ['board_game_id' => $boardGame->id],
+                    ], ['class' => 'button']) ?>
                 </article>
             <?php endforeach; ?>
         </div>
@@ -50,14 +54,14 @@
                     ?>
                 </td>
                 <td>
-                    <?= $this->Html->link('Ouvrir', ['action' => 'view', $game->id]) ?>
+                    <?= $this->Html->link('Ouvrir', ['controller' => 'Games', 'action' => 'view', $game->id]) ?>
                     <?php if (
                         $currentUser &&
                         $game->board_game->type === 'multiplayer' &&
                         count($game->users_ingames) < 2
                     ): ?>
                         |
-                        <?= $this->Html->link('Rejoindre', ['action' => 'join', $game->id]) ?>
+                        <?= $this->Html->link('Rejoindre', ['controller' => 'Games', 'action' => 'join', $game->id]) ?>
                     <?php endif; ?>
                 </td>
             </tr>

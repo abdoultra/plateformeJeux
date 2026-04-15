@@ -7,15 +7,15 @@
 ?>
 <section class="hero">
     <div>
-        <h2>Une base simple, claire et prête pour le TP</h2>
+        <h2>Une base simple, claire et prete pour le TP</h2>
         <p>
-            Cette première version gère déjà les comptes, la liste des jeux,
-            la création des parties et une version jouable de Mastermind.
+            Cette premiere version gere deja les comptes, la liste des jeux,
+            la creation des parties et une version jouable de Mastermind.
         </p>
         <div class="hero-actions">
             <?= $this->Html->link('Voir les jeux', ['controller' => 'Games', 'action' => 'index'], ['class' => 'button']) ?>
             <?php if (!$currentUser): ?>
-                <?= $this->Html->link('Créer un compte', ['controller' => 'Users', 'action' => 'register'], ['class' => 'button button-secondary']) ?>
+                <?= $this->Html->link('Creer un compte', ['controller' => 'Users', 'action' => 'register'], ['class' => 'button button-secondary']) ?>
             <?php endif; ?>
         </div>
     </div>
@@ -27,14 +27,18 @@
             <h3><?= h($boardGame->name) ?></h3>
             <p>Type : <?= h($boardGame->type) ?></p>
             <?php if ($currentUser): ?>
-                <?= $this->Html->link('Créer une partie', ['controller' => 'Games', 'action' => 'add', $boardGame->id], ['class' => 'button']) ?>
+                <?= $this->Html->link('Creer une partie', [
+                    'controller' => 'Games',
+                    'action' => 'add',
+                    '?' => ['board_game_id' => $boardGame->id],
+                ], ['class' => 'button']) ?>
             <?php endif; ?>
         </article>
     <?php endforeach; ?>
 </section>
 
 <section class="panel">
-    <h2>Parties récentes</h2>
+    <h2>Parties recentes</h2>
     <?php if ($recentGames->isEmpty()): ?>
         <p>Aucune partie pour le moment.</p>
     <?php else: ?>

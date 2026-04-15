@@ -186,12 +186,113 @@ td {
     font-weight: 700;
 }
 
+.filler-board {
+    display: grid;
+    gap: 4px;
+    margin-top: 20px;
+}
+
+.filler-row {
+    display: flex;
+    gap: 4px;
+}
+
+.filler-cell {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #111827;
+    font-weight: 700;
+    border: 2px solid transparent;
+}
+
+.filler-player1 {
+    border-color: #1d4ed8;
+}
+
+.filler-player2 {
+    border-color: #dc2626;
+}
+
+.filler-color-r {
+    background: #fca5a5;
+}
+
+.filler-color-b {
+    background: #93c5fd;
+}
+
+.filler-color-j {
+    background: #fde68a;
+}
+
+.filler-color-v {
+    background: #86efac;
+}
+
+.filler-color-o {
+    background: #fdba74;
+}
+
+.filler-color-p {
+    background: #f9a8d4;
+}
+
 .map-preview {
     background: #111827;
     color: #f9fafb;
     padding: 16px;
     border-radius: 12px;
     overflow: auto;
+}
+
+.labyrinth-board {
+    display: grid;
+    gap: 4px;
+    margin-top: 20px;
+}
+
+.labyrinth-row {
+    display: flex;
+    gap: 4px;
+}
+
+.labyrinth-cell {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.labyrinth-wall {
+    background: #1f2937;
+    color: #1f2937;
+}
+
+.labyrinth-path {
+    background: #e5e7eb;
+    color: #e5e7eb;
+}
+
+.labyrinth-player1 {
+    background: #2563eb;
+    color: #fff;
+}
+
+.labyrinth-player2 {
+    background: #dc2626;
+    color: #fff;
+}
+
+.labyrinth-treasure {
+    background: #f59e0b;
+    color: #111827;
 }
 
 @media (max-width: 700px) {

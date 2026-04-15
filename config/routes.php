@@ -39,15 +39,6 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/deconnexion', ['controller' => 'Users', 'action' => 'logout']);
         $builder->connect('/profil', ['controller' => 'Users', 'action' => 'profile']);
         $builder->connect('/jeux', ['controller' => 'Games', 'action' => 'index']);
-        $builder->connect('/jeux/creer/:boardGameId', ['controller' => 'Games', 'action' => 'add'])
-            ->setPass(['boardGameId'])
-            ->setPatterns(['boardGameId' => '\d+']);
-        $builder->connect('/jeux/rejoindre/:id', ['controller' => 'Games', 'action' => 'join'])
-            ->setPass(['id'])
-            ->setPatterns(['id' => '\d+']);
-        $builder->connect('/jeux/:id', ['controller' => 'Games', 'action' => 'view'])
-            ->setPass(['id'])
-            ->setPatterns(['id' => '\d+']);
         $builder->fallbacks();
     });
 };

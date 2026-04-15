@@ -21,14 +21,48 @@ class GamesController extends AppController
         $this->set(compact('boardGames', 'games'));
     }
 
-    public function add(?int $boardGameId = null)
+    public function add($boardGameId = null)
     {
         $userId = $this->requireLogin();
         if ($userId === null) {
             return null;
         }
 
-        if ($boardGameId === null) {
+        $resolvedBoardGameId = null;
+
+        if ($boardGameId !== null && (string)$boardGameId !== '') {
+            $resolvedBoardGameId = (int)$boardGameId;
+        }
+
+        if ($resolvedBoardGameId === null) {
+            $queryBoardGameId = $this->request->getQuery('board_game_id');
+            if ($queryBoardGameId !== null && (string)$queryBoardGameId !== '') {
+                $resolvedBoardGameId = (int)$queryBoardGameId;
+            }
+        }
+
+        if ($resolvedBoardGameId === null) {
+            $routeBoardGameId = $this->request->getParam('boardGameId');
+            if ($routeBoardGameId !== null && (string)$routeBoardGameId !== '') {
+                $resolvedBoardGameId = (int)$routeBoardGameId;
+            }
+        }
+
+        if ($resolvedBoardGameId === null) {
+            $pass = (array)$this->request->getParam('pass', []);
+            if (!empty($pass[0]) && (string)$pass[0] !== '') {
+                $resolvedBoardGameId = (int)$pass[0];
+            }
+        }
+
+        if ($resolvedBoardGameId === null) {
+            $url = trim((string)$this->request->getRequestTarget(), '/');
+            if (preg_match('#(?:games/add|jeux/creer)/(\d+)#', $url, $matches) === 1) {
+                $resolvedBoardGameId = (int)$matches[1];
+            }
+        }
+
+        if ($resolvedBoardGameId === null || $resolvedBoardGameId <= 0) {
             $this->Flash->error('Jeu introuvable.');
 
             return $this->redirect(['action' => 'index']);
@@ -37,7 +71,7 @@ class GamesController extends AppController
         $boardGamesTable = $this->fetchTable('BoardGames');
         $gamesTable = $this->fetchTable('Games');
         $usersIngamesTable = $this->fetchTable('UsersIngames');
-        $boardGame = $boardGamesTable->get($boardGameId);
+        $boardGame = $boardGamesTable->get($resolvedBoardGameId);
 
         $game = $gamesTable->newEntity([
             'board_game_id' => $boardGame->id,
@@ -72,7 +106,7 @@ class GamesController extends AppController
 
         $this->Flash->success('La partie a bien été créée.');
 
-        return $this->redirect(['action' => 'view', $game->id]);
+        return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
     }
 
     public function join(int $id)
@@ -89,21 +123,21 @@ class GamesController extends AppController
         if ($game->board_game->type !== 'multiplayer') {
             $this->Flash->error('Cette partie ne peut pas être rejointe.');
 
-            return $this->redirect(['action' => 'view', $id]);
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $id]);
         }
 
         foreach ($game->users_ingames as $link) {
             if ((int)$link->user_id === $userId) {
                 $this->Flash->info('Tu fais déjà partie de cette partie.');
 
-                return $this->redirect(['action' => 'view', $id]);
+                return $this->redirect(['controller' => 'Games', 'action' => 'view', $id]);
             }
         }
 
         if (count($game->users_ingames) >= 2) {
             $this->Flash->error('La partie a déjà deux joueurs.');
 
-            return $this->redirect(['action' => 'view', $id]);
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $id]);
         }
 
         $playerLink = $usersIngamesTable->newEntity([
@@ -119,7 +153,7 @@ class GamesController extends AppController
 
         $this->Flash->success('Tu as rejoint la partie.');
 
-        return $this->redirect(['action' => 'view', $id]);
+        return $this->redirect(['controller' => 'Games', 'action' => 'view', $id]);
     }
 
     public function view(int $id)
@@ -143,6 +177,10 @@ class GamesController extends AppController
             return $this->playFiller($game);
         }
 
+        if ($this->request->is('post') && $game->board_game->name === 'Labyrinthe') {
+            return $this->playLabyrinth($game);
+        }
+
         $decodedSteps = [];
         if (!empty($game->mastermind_setting?->steps)) {
             $decodedSteps = json_decode((string)$game->mastermind_setting->steps, true) ?: [];
@@ -163,7 +201,12 @@ class GamesController extends AppController
             $labyrinthMap = explode("\n", trim((string)$game->labyrinth_setting->map));
         }
 
-        $this->set(compact('game', 'decodedSteps', 'fillerGrid', 'fillerState', 'labyrinthMap'));
+        $labyrinthState = null;
+        if ($game->labyrinth_setting !== null && $labyrinthMap !== null) {
+            $labyrinthState = $this->buildLabyrinthState($game, $labyrinthMap);
+        }
+
+        $this->set(compact('game', 'decodedSteps', 'fillerGrid', 'fillerState', 'labyrinthMap', 'labyrinthState'));
     }
 
     protected function playMastermind(object $game)
@@ -178,14 +221,14 @@ class GamesController extends AppController
         if (strlen($guess) !== 4) {
             $this->Flash->error('Entre une combinaison de 4 lettres.');
 
-            return $this->redirect(['action' => 'view', $game->id]);
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
         }
 
         foreach (str_split($guess) as $letter) {
             if (!in_array($letter, $allowedColors, true)) {
                 $this->Flash->error('Les lettres autorisées sont R, B, J, V, O et P.');
 
-                return $this->redirect(['action' => 'view', $game->id]);
+                return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
             }
         }
 
@@ -221,7 +264,7 @@ class GamesController extends AppController
             $this->Flash->success('Essai enregistré.');
         }
 
-        return $this->redirect(['action' => 'view', $game->id]);
+        return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
     }
 
     protected function buildMastermindFeedback(string $guess, string $combination): array
@@ -298,13 +341,13 @@ class GamesController extends AppController
 
     protected function playFiller(object $game)
     {
-        $usersIngames = $game->users_ingames->toList();
+        $usersIngames = is_array($game->users_ingames) ? $game->users_ingames : $game->users_ingames->toList();
         usort($usersIngames, fn ($left, $right) => $left->id <=> $right->id);
 
         if (count($usersIngames) < 2) {
             $this->Flash->error('Il faut deux joueurs pour commencer une partie de Filler.');
 
-            return $this->redirect(['action' => 'view', $game->id]);
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
         }
 
         $currentUserId = $this->getCurrentUserId();
@@ -314,7 +357,7 @@ class GamesController extends AppController
         if ($currentUserId !== $expectedUserId) {
             $this->Flash->error('Ce n’est pas encore ton tour.');
 
-            return $this->redirect(['action' => 'view', $game->id]);
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
         }
 
         $chosenColor = strtoupper(trim((string)$this->request->getData('color')));
@@ -324,7 +367,7 @@ class GamesController extends AppController
         if (!in_array($chosenColor, $state['availableColors'], true)) {
             $this->Flash->error('Cette couleur n’est pas autorisée pour ce tour.');
 
-            return $this->redirect(['action' => 'view', $game->id]);
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
         }
 
         $activePlayerKey = $currentPlayerNumber === 1 ? 'player1' : 'player2';
@@ -359,7 +402,7 @@ class GamesController extends AppController
             $this->Flash->success('Le coup a été joué.');
         }
 
-        return $this->redirect(['action' => 'view', $game->id]);
+        return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
     }
 
     protected function buildFillerState(object $game, array $grid): array
@@ -391,6 +434,7 @@ class GamesController extends AppController
         ));
 
         return [
+            'grid' => $grid,
             'player1' => [
                 'color' => $player1Color,
                 'territory' => $player1Territory,
@@ -519,10 +563,186 @@ class GamesController extends AppController
             'pos_p1_y' => 0,
             'pos_p2_x' => 1,
             'pos_p2_y' => 0,
-            'pa_p1' => 0,
-            'pa_p2' => 0,
+            'pa_p1' => 5,
+            'pa_p2' => 5,
         ]);
 
         $this->fetchTable('LabyrinthSettings')->saveOrFail($settings);
+    }
+
+    protected function playLabyrinth(object $game)
+    {
+        $direction = strtoupper(trim((string)$this->request->getData('direction')));
+        $directions = [
+            'UP' => [0, -1],
+            'DOWN' => [0, 1],
+            'LEFT' => [-1, 0],
+            'RIGHT' => [1, 0],
+        ];
+
+        if (!isset($directions[$direction])) {
+            $this->Flash->error('Direction invalide.');
+
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
+        }
+
+        $playerSlot = $this->getLabyrinthPlayerSlot($game);
+        if ($playerSlot === null) {
+            $this->Flash->error('Tu ne fais pas partie de cette partie.');
+
+            return $this->redirect(['controller' => 'Games', 'action' => 'index']);
+        }
+
+        $labyrinthSettingsTable = $this->fetchTable('LabyrinthSettings');
+        $usersIngamesTable = $this->fetchTable('UsersIngames');
+        $gamesTable = $this->fetchTable('Games');
+
+        $settings = $game->labyrinth_setting;
+        $currentPaField = $playerSlot === 1 ? 'pa_p1' : 'pa_p2';
+        $currentXField = $playerSlot === 1 ? 'pos_p1_x' : 'pos_p2_x';
+        $currentYField = $playerSlot === 1 ? 'pos_p1_y' : 'pos_p2_y';
+
+        if ((int)$settings->{$currentPaField} <= 0) {
+            $this->Flash->error('Tu n’as plus de PA. Lance la recharge ou attends la prochaine minute.');
+
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
+        }
+
+        $mapLines = explode("\n", trim((string)$settings->map));
+        $delta = $directions[$direction];
+        $newX = (int)$settings->{$currentXField} + $delta[0];
+        $newY = (int)$settings->{$currentYField} + $delta[1];
+
+        if (!$this->isWalkableLabyrinthCell($mapLines, $newX, $newY)) {
+            $this->Flash->error('Tu ne peux pas aller sur cette case.');
+
+            return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
+        }
+
+        $settings->{$currentXField} = $newX;
+        $settings->{$currentYField} = $newY;
+        $settings->{$currentPaField} = (int)$settings->{$currentPaField} - 1;
+        $labyrinthSettingsTable->saveOrFail($settings);
+
+        if ($newX === (int)$settings->treasure_x && $newY === (int)$settings->treasure_y) {
+            $game->status = 'finished';
+            $gamesTable->saveOrFail($game);
+
+            $links = is_array($game->users_ingames) ? $game->users_ingames : $game->users_ingames->toList();
+            usort($links, fn ($left, $right) => $left->id <=> $right->id);
+            foreach ($links as $index => $link) {
+                $link->score_final = ($index + 1) === $playerSlot ? 1 : 0;
+                $usersIngamesTable->saveOrFail($link);
+            }
+
+            $this->Flash->success('Bravo, tu as trouvé le trésor.');
+        } else {
+            $this->Flash->success('Déplacement effectué.');
+        }
+
+        return $this->redirect(['controller' => 'Games', 'action' => 'view', $game->id]);
+    }
+
+    protected function getLabyrinthPlayerSlot(object $game): ?int
+    {
+        $currentUserId = $this->getCurrentUserId();
+        $links = is_array($game->users_ingames) ? $game->users_ingames : $game->users_ingames->toList();
+        usort($links, fn ($left, $right) => $left->id <=> $right->id);
+
+        foreach ($links as $index => $link) {
+            if ((int)$link->user_id === $currentUserId) {
+                return $index + 1;
+            }
+        }
+
+        return null;
+    }
+
+    protected function isWalkableLabyrinthCell(array $mapLines, int $x, int $y): bool
+    {
+        if ($y < 0 || $y >= count($mapLines)) {
+            return false;
+        }
+
+        $line = $mapLines[$y];
+        if ($x < 0 || $x >= strlen($line)) {
+            return false;
+        }
+
+        return $line[$x] === '.';
+    }
+
+    protected function buildLabyrinthState(object $game, array $mapLines): array
+    {
+        $playerSlot = $this->getLabyrinthPlayerSlot($game);
+        $settings = $game->labyrinth_setting;
+        $cells = [];
+
+        foreach ($mapLines as $y => $line) {
+            $row = [];
+            foreach (str_split($line) as $x => $cell) {
+                $type = $cell === '#' ? 'wall' : 'path';
+                $label = '';
+
+                if ($x === (int)$settings->pos_p1_x && $y === (int)$settings->pos_p1_y) {
+                    $type = 'player1';
+                    $label = 'J1';
+                } elseif ($x === (int)$settings->pos_p2_x && $y === (int)$settings->pos_p2_y) {
+                    $type = 'player2';
+                    $label = 'J2';
+                } elseif (
+                    $game->status === 'finished' &&
+                    $x === (int)$settings->treasure_x &&
+                    $y === (int)$settings->treasure_y
+                ) {
+                    $type = 'treasure';
+                    $label = 'T';
+                }
+
+                $row[] = [
+                    'type' => $type,
+                    'label' => $label,
+                ];
+            }
+            $cells[] = $row;
+        }
+
+        $availableDirections = [];
+        if ($playerSlot !== null && $game->status !== 'finished') {
+            $currentX = $playerSlot === 1 ? (int)$settings->pos_p1_x : (int)$settings->pos_p2_x;
+            $currentY = $playerSlot === 1 ? (int)$settings->pos_p1_y : (int)$settings->pos_p2_y;
+            $currentPa = $playerSlot === 1 ? (int)$settings->pa_p1 : (int)$settings->pa_p2;
+
+            if ($currentPa > 0) {
+                $checks = [
+                    'UP' => [0, -1],
+                    'DOWN' => [0, 1],
+                    'LEFT' => [-1, 0],
+                    'RIGHT' => [1, 0],
+                ];
+
+                foreach ($checks as $direction => [$deltaX, $deltaY]) {
+                    if ($this->isWalkableLabyrinthCell($mapLines, $currentX + $deltaX, $currentY + $deltaY)) {
+                        $availableDirections[] = $direction;
+                    }
+                }
+            }
+        }
+
+        return [
+            'playerSlot' => $playerSlot,
+            'cells' => $cells,
+            'player1' => [
+                'x' => (int)$settings->pos_p1_x,
+                'y' => (int)$settings->pos_p1_y,
+                'pa' => (int)$settings->pa_p1,
+            ],
+            'player2' => [
+                'x' => (int)$settings->pos_p2_x,
+                'y' => (int)$settings->pos_p2_y,
+                'pa' => (int)$settings->pa_p2,
+            ],
+            'availableDirections' => $availableDirections,
+        ];
     }
 }
