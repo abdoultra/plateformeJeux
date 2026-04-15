@@ -8,19 +8,42 @@
  * @var array<string, mixed>|null $labyrinthState
  */
 ?>
-<section class="panel">
-    <h2><?= h($game->board_game->name) ?> - Partie #<?= h((string)$game->id) ?></h2>
-    <p><strong>Statut :</strong> <?= h($game->status) ?></p>
-    <p>
-        <strong>Joueurs :</strong>
-        <?php
-        $names = [];
-        foreach ($game->users_ingames as $link) {
-            $names[] = $link->user->username;
-        }
-        echo h(implode(', ', $names));
-        ?>
-    </p>
+<?php
+$statusLabels = [
+    'waiting' => 'En attente',
+    'in_progress' => 'En cours',
+    'finished' => 'Terminee',
+];
+$statusClass = 'status-pill status-' . strtolower((string)$game->status);
+$names = [];
+foreach ($game->users_ingames as $link) {
+    $names[] = $link->user->username;
+}
+?>
+<section class="panel game-header-panel">
+    <div class="game-header-top">
+        <div>
+            <span class="eyebrow">Partie #<?= h((string)$game->id) ?></span>
+            <h2><?= h($game->board_game->name) ?></h2>
+            <p class="game-header-lead">Suis l'etat de la partie, les joueurs presents et les informations utiles avant de jouer.</p>
+        </div>
+        <span class="<?= h($statusClass) ?>"><?= h($statusLabels[$game->status] ?? $game->status) ?></span>
+    </div>
+
+    <div class="game-meta-grid">
+        <article class="game-meta-card">
+            <span class="game-meta-label">Jeu</span>
+            <strong><?= h($game->board_game->name) ?></strong>
+        </article>
+        <article class="game-meta-card">
+            <span class="game-meta-label">Statut</span>
+            <strong><?= h($statusLabels[$game->status] ?? $game->status) ?></strong>
+        </article>
+        <article class="game-meta-card">
+            <span class="game-meta-label">Joueurs</span>
+            <strong><?= h(implode(', ', $names)) ?></strong>
+        </article>
+    </div>
 </section>
 
 <?php if ($game->board_game->name === 'Mastermind'): ?>
@@ -205,8 +228,10 @@
                 <?= $this->Form->button('Se deplacer', ['class' => 'button']) ?>
                 <?= $this->Form->end() ?>
             </section>
+            <p class="labyrinth-tip">Astuce : la recharge des PA se fait avec la commande bin\cake recharge_pa.</p>
         <?php elseif ($game->status !== 'finished'): ?>
             <p>Aucun deplacement possible pour le moment. Recharge les PA si besoin.</p>
+            <p class="labyrinth-tip">Astuce : la recharge des PA se fait avec la commande bin\cake recharge_pa.</p>
         <?php else: ?>
             <p>La partie est terminee. Le tresor est maintenant visible sur la carte.</p>
         <?php endif; ?>
@@ -222,7 +247,5 @@
                 </div>
             <?php endforeach; ?>
         </div>
-
-        <p>La commande `bin\cake recharge_pa` ajoute 5 PA par minute avec un maximum de 15.</p>
     </section>
 <?php endif; ?>

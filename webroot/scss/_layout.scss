@@ -177,6 +177,37 @@
     margin-bottom: 32px;
 }
 
+.game-header-panel {
+    background:
+        radial-gradient(circle at top right, rgba(217, 119, 6, 0.12), transparent 28%),
+        linear-gradient(145deg, #ffffff, #f6fafc);
+}
+
+.game-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 20px;
+
+    h2 {
+        margin: 0 0 8px;
+    }
+}
+
+.game-header-lead {
+    max-width: 680px;
+    margin: 0;
+    color: $color-ink-soft;
+    line-height: 1.65;
+}
+
+.game-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+}
+
 .about-grid,
 .rules-grid {
     display: grid;
@@ -202,6 +233,10 @@
 
     .section-heading {
         align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .game-header-top {
         flex-direction: column;
     }
 

@@ -5,16 +5,38 @@
  * @var array<string, mixed>|null $currentUser
  */
 ?>
-<section class="panel">
-    <h2>Creer une partie</h2>
+<section class="section-heading">
+    <div>
+        <span class="eyebrow">Lancement</span>
+        <h2>Creer une nouvelle partie</h2>
+    </div>
+    <p>Choisis un jeu, lance une partie et invite un autre joueur si le mode est multijoueur.</p>
+</section>
+
+<section class="panel games-launch-panel">
     <?php if (!$currentUser): ?>
         <p>Connecte-toi pour pouvoir creer ou rejoindre une partie.</p>
     <?php else: ?>
-        <div class="card-grid">
+        <div class="card-grid game-showcase">
             <?php foreach ($boardGames as $boardGame): ?>
-                <article class="card">
-                    <h3><?= h($boardGame->name) ?></h3>
-                    <p>Type : <?= h($boardGame->type) ?></p>
+                <?php
+                $descriptions = [
+                    'Mastermind' => 'Deduction, essais successifs et historique de progression.',
+                    'Filler' => 'Conquete de cases en duel avec tours et couleurs.',
+                    'Labyrinthe' => 'Course au tresor avec gestion des deplacements et des PA.',
+                ];
+                $labels = [
+                    'solo' => 'Solo',
+                    'multiplayer' => 'Multijoueur',
+                ];
+                $cardClass = 'game-card game-card-' . strtolower((string)$boardGame->name);
+                ?>
+                <article class="card <?= h($cardClass) ?>">
+                    <div class="game-card-top">
+                        <span class="game-badge"><?= h($labels[$boardGame->type] ?? $boardGame->type) ?></span>
+                        <h3><?= h($boardGame->name) ?></h3>
+                    </div>
+                    <p><?= h($descriptions[$boardGame->name] ?? 'Jeu disponible dans la plateforme.') ?></p>
                     <?= $this->Html->link('Creer une partie', [
                         'controller' => 'Games',
                         'action' => 'add',
@@ -26,8 +48,15 @@
     <?php endif; ?>
 </section>
 
-<section class="panel">
-    <h2>Liste des parties</h2>
+<section class="section-heading">
+    <div>
+        <span class="eyebrow">Suivi</span>
+        <h2>Liste des parties</h2>
+    </div>
+    <p>Retrouve rapidement les parties en attente, en cours ou deja terminees.</p>
+</section>
+
+<section class="panel recent-games-panel">
     <table>
         <thead>
             <tr>
@@ -41,9 +70,19 @@
         <tbody>
         <?php foreach ($games as $game): ?>
             <tr>
-                <td><?= h((string)$game->id) ?></td>
+                <td><span class="table-id">#<?= h((string)$game->id) ?></span></td>
                 <td><?= h($game->board_game->name) ?></td>
-                <td><?= h($game->status) ?></td>
+                <td>
+                    <?php
+                    $statusLabels = [
+                        'waiting' => 'En attente',
+                        'in_progress' => 'En cours',
+                        'finished' => 'Terminee',
+                    ];
+                    $statusClass = 'status-pill status-' . strtolower((string)$game->status);
+                    ?>
+                    <span class="<?= h($statusClass) ?>"><?= h($statusLabels[$game->status] ?? $game->status) ?></span>
+                </td>
                 <td>
                     <?php
                     $players = [];
@@ -54,15 +93,16 @@
                     ?>
                 </td>
                 <td>
-                    <?= $this->Html->link('Ouvrir', ['controller' => 'Games', 'action' => 'view', $game->id]) ?>
+                    <div class="table-actions">
+                        <?= $this->Html->link('Ouvrir', ['controller' => 'Games', 'action' => 'view', $game->id], ['class' => 'table-link']) ?>
                     <?php if (
                         $currentUser &&
                         $game->board_game->type === 'multiplayer' &&
                         count($game->users_ingames) < 2
                     ): ?>
-                        |
-                        <?= $this->Html->link('Rejoindre', ['controller' => 'Games', 'action' => 'join', $game->id]) ?>
+                        <?= $this->Html->link('Rejoindre', ['controller' => 'Games', 'action' => 'join', $game->id], ['class' => 'table-link']) ?>
                     <?php endif; ?>
+                    </div>
                 </td>
             </tr>
         <?php endforeach; ?>

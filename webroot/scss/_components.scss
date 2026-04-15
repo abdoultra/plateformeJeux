@@ -172,6 +172,16 @@ form div {
     color: #111827;
 }
 
+.labyrinth-tip {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-left: 4px solid $color-accent;
+    border-radius: 0 12px 12px 0;
+    background: rgba(217, 119, 6, 0.09);
+    color: $color-text;
+    font-size: 0.95rem;
+}
+
 .leaderboard-table {
     td:first-child,
     th:first-child {
@@ -292,6 +302,81 @@ form div {
 
 .recent-games-panel {
     overflow: hidden;
+}
+
+.games-launch-panel {
+    padding-top: 18px;
+}
+
+.table-id {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: $color-primary-soft;
+    color: $color-primary-dark;
+    font-weight: 700;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.status-waiting {
+    background: #fef3c7;
+    color: #854d0e;
+}
+
+.status-in_progress {
+    background: #dbeafe;
+    color: #1e3a8a;
+}
+
+.status-finished {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.table-link {
+    font-weight: 700;
+}
+
+.game-meta-card {
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(15, 106, 139, 0.06);
+
+    strong,
+    span {
+        display: block;
+    }
+
+    strong {
+        line-height: 1.5;
+    }
+}
+
+.game-meta-label {
+    margin-bottom: 8px;
+    color: $color-ink-soft;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .about-list {
