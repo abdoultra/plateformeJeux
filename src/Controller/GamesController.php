@@ -613,7 +613,10 @@ class GamesController extends AppController
 
     protected function createLabyrinthSettings(int $gameId): void
     {
-        $mapFile = RESOURCES . 'maps' . DS . 'labyrinth_default.txt';
+        $mapFiles = glob(RESOURCES . 'maps' . DS . 'labyrinth_*.txt') ?: [];
+        $mapFile = $mapFiles !== []
+            ? $mapFiles[array_rand($mapFiles)]
+            : RESOURCES . 'maps' . DS . 'labyrinth_default.txt';
         $lines = file($mapFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
         $walkableCells = [];
 

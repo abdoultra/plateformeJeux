@@ -400,7 +400,7 @@ foreach ($game->users_ingames as $link) {
             <div>
                 <span class="eyebrow">Labyrinthe</span>
                 <h2>Explore le donjon et trouve le trésor</h2>
-                <p>Deux joueurs avancent case par case. Chaque déplacement coûte 1 PA, et le trésor reste invisible jusqu'à la victoire.</p>
+                <p>Deux joueurs avancent case par case. Chaque déplacement coûte 1 PA, et le trésor reste caché jusqu'à ce qu'un joueur le trouve.</p>
             </div>
             <div class="labyrinth-current-player">
                 <span>Joueur connecté</span>

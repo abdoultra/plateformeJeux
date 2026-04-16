@@ -119,13 +119,33 @@
                     <td>
                         <?php
                         $names = [];
+                        $isCurrentUserInGame = false;
                         foreach ($game->users_ingames as $link) {
                             $names[] = $link->user->username;
+                            if ($currentUser && (int)$link->user_id === (int)$currentUser['id']) {
+                                $isCurrentUserInGame = true;
+                            }
                         }
                         echo h(implode(', ', $names));
                         ?>
                     </td>
-                    <td><?= $this->Html->link('Ouvrir', ['controller' => 'Games', 'action' => 'view', $game->id]) ?></td>
+                    <td>
+                        <div class="table-actions">
+                            <?php if ($isCurrentUserInGame): ?>
+                                <?= $this->Html->link('Ouvrir', ['controller' => 'Games', 'action' => 'view', $game->id], ['class' => 'table-link']) ?>
+                            <?php elseif (
+                                $currentUser &&
+                                $game->board_game->type === 'multiplayer' &&
+                                count($game->users_ingames) < 2
+                            ): ?>
+                                <?= $this->Html->link('Rejoindre', ['controller' => 'Games', 'action' => 'join', $game->id], ['class' => 'table-link table-link-join']) ?>
+                            <?php elseif (!$currentUser): ?>
+                                <?= $this->Html->link('Connexion requise', ['controller' => 'Users', 'action' => 'login'], ['class' => 'table-link']) ?>
+                            <?php else: ?>
+                                <span class="table-muted">Non accessible</span>
+                            <?php endif; ?>
+                        </div>
+                    </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
