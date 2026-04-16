@@ -10,7 +10,8 @@
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Plateforme de jeux</title>
-    <?= $this->Html->css(['app']) ?>
+    <?php $cssVersion = filemtime(WWW_ROOT . 'css' . DS . 'app.css') ?: time(); ?>
+    <link rel="stylesheet" href="<?= $this->Url->build('/css/app.css') ?>?v=<?= h((string)$cssVersion) ?>">
 </head>
 <body>
     <header class="site-header">

@@ -210,7 +210,80 @@ class GamesController extends AppController
             $labyrinthState = $this->buildLabyrinthState($game, $labyrinthMap);
         }
 
-        $this->set(compact('game', 'decodedSteps', 'fillerGrid', 'fillerState', 'labyrinthMap', 'labyrinthState'));
+        $gameFingerprint = $this->buildGameFingerprint($game);
+
+        $this->set(compact('game', 'decodedSteps', 'fillerGrid', 'fillerState', 'labyrinthMap', 'labyrinthState', 'gameFingerprint'));
+    }
+
+    public function state(int $id)
+    {
+        $this->request->allowMethod(['get']);
+
+        $game = $this->fetchTable('Games')->get($id, contain: [
+            'BoardGames',
+            'UsersIngames.Users',
+            'MastermindSettings',
+            'FillerSettings',
+            'LabyrinthSettings',
+        ]);
+
+        if (!$this->ensurePlayerInGame($game)) {
+            return $this->response
+                ->withStatus(403)
+                ->withType('application/json')
+                ->withStringBody(json_encode(['error' => 'Accès interdit'], JSON_THROW_ON_ERROR));
+        }
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode([
+                'status' => $game->status,
+                'fingerprint' => $this->buildGameFingerprint($game),
+            ], JSON_THROW_ON_ERROR));
+    }
+
+    protected function buildGameFingerprint(object $game): string
+    {
+        $links = is_array($game->users_ingames) ? $game->users_ingames : $game->users_ingames->toList();
+        usort($links, fn ($left, $right) => $left->id <=> $right->id);
+
+        $payload = [
+            'id' => (int)$game->id,
+            'status' => (string)$game->status,
+            'players' => array_map(fn ($link): array => [
+                'id' => (int)$link->id,
+                'user_id' => (int)$link->user_id,
+                'score_final' => (int)$link->score_final,
+            ], $links),
+        ];
+
+        if ($game->mastermind_setting !== null) {
+            $payload['mastermind'] = [
+                'steps' => (string)$game->mastermind_setting->steps,
+            ];
+        }
+
+        if ($game->filler_setting !== null) {
+            $payload['filler'] = [
+                'grid' => (string)$game->filler_setting->grid,
+                'current_player' => (int)$game->filler_setting->current_player,
+            ];
+        }
+
+        if ($game->labyrinth_setting !== null) {
+            $payload['labyrinth'] = [
+                'pos_p1_x' => (int)$game->labyrinth_setting->pos_p1_x,
+                'pos_p1_y' => (int)$game->labyrinth_setting->pos_p1_y,
+                'pos_p2_x' => (int)$game->labyrinth_setting->pos_p2_x,
+                'pos_p2_y' => (int)$game->labyrinth_setting->pos_p2_y,
+                'pa_p1' => (int)$game->labyrinth_setting->pa_p1,
+                'pa_p2' => (int)$game->labyrinth_setting->pa_p2,
+                'treasure_x' => (int)$game->labyrinth_setting->treasure_x,
+                'treasure_y' => (int)$game->labyrinth_setting->treasure_y,
+            ];
+        }
+
+        return sha1(json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
     protected function playMastermind(object $game)
